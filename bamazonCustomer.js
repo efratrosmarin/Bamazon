@@ -29,18 +29,16 @@ var makeTable = function () {
 
 }
 
-function promptCustomer() {
-  inquirer
-    .prompt([{
+var promptCustomer = function promptCustomer(res){
+  inquirer.prompt([{
       type: "input",
       name: "choice",
       message: "What would you like to buy?"
 
-    }])
-    .then(function (answer) {
+    }]).then(function(answer){
         var correct = false;
-        for (var i = 0; i < res.length; i++) {
-          if (res[i].product_name == answer.choice) {
+        for (var i = 0; i < res.length; i++){
+          if (res[i].product_name == answer.choice){
 
             correct = true
             var product = answer.choice;
@@ -48,11 +46,11 @@ function promptCustomer() {
             inquirer.prompt({
 
               type: "input",
-              name: "quany",
+              name: "quant",
               message: "How many would you like to buy?",
-              validate: function (value) {
+              validate: function (value){
 
-                if (isNan(value) == false) {
+                if(isNaN(value) == false){
                   return true;
 
                 } else {
@@ -61,12 +59,13 @@ function promptCustomer() {
                 }
               }
 
-            }).then(function (answer) {
-              if (res[id].stock_quantity - answer.quant > 0) {
+            }).then(function(answer){
+              if(res[id].stock_quantity-answer.quant > 0){
 
-                connection.query("UPDATE products SET stock_quantity =' " + (res[id].stock_quantity - answer.quant) + "'", function (err, res2) {
-                  console.log("Product Bought!");
+                connection.query("UPDATE products SET stock_quantity =' " + (res[id].stock_quantity - answer.quant) + " ' WHERE product_name=' " +product + "'", function (err,res2){
+                  console.log("Thank you for the purchase");
                   makeTable();
+              
                 })
               } else {
                 console.log("Thanks for browsing");
@@ -82,7 +81,7 @@ function promptCustomer() {
           promptCustomer(res)
         }
       })
-    }
+    };
 
 
        
