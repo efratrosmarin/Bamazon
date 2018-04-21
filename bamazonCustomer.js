@@ -29,59 +29,56 @@ var makeTable = function () {
 
 }
 
-var promptCustomer = function promptCustomer(res){
+var promptCustomer = function promptCustomer(res) {
   inquirer.prompt([{
-      type: "input",
-      name: "choice",
-      message: "What would you like to buy?"
+    type: "input",
+    name: "choice",
+    message: "What would you like to buy?"
 
-    }]).then(function(answer){
-        var correct = false;
-        for (var i = 0; i < res.length; i++){
-          if (res[i].product_name == answer.choice){
+  }]).then(function (answer) {
+    var correct = false;
+    for (var i = 0; i < res.length; i++) {
+      if (res[i].product_name == answer.choice || res[i].id == answer.choice) {
 
-            correct = true
-            var product = answer.choice;
-            var id = i;
-            inquirer.prompt({
+        correct = true
+        var product = answer.choice;
+        var id = i;
+        inquirer.prompt({
 
-              type: "input",
-              name: "quant",
-              message: "How many would you like to buy?",
-              validate: function (value){
+          type: "input",
+          name: "quant",
+          message: "How many would you like to buy?",
+          validate: function (value) {
 
-                if(isNaN(value) == false){
-                  return true;
+            if (isNaN(value) == false) {
+              return true;
 
-                } else {
+            } else {
 
-                  return false;
-                }
-              }
-
-            }).then(function(answer){
-              if(res[id].stock_quantity-answer.quant > 0){
-
-                connection.query("UPDATE products SET stock_quantity =' " + (res[id].stock_quantity - answer.quant) + " ' WHERE product_name=' " +product + "'", function (err,res2){
-                  console.log("Thank you for the purchase");
-                  makeTable();
-              
-                })
-              } else {
-                console.log("Thanks for browsing");
-                promprCustomer(res);
-
-
-              }
-            })
+              return false;
+            }
           }
-        }
-        if (i==res.length && correct==false){
-          console.log("This is not for sale");
-          promptCustomer(res)
-        }
-      })
-    };
 
+        }).then(function (answer) {
+          if (res[id].stock_quantity - answer.quant > 0) {
+            var newQuantity = (parseInt(res[id].stock_quantity) - parseInt(answer.quant));
+            connection.query("UPDATE products SET stock_quantity = ? WHERE product_name = ?",[newQuantity, product], function (err, res2) {
+              console.log("Thank you for the purchase!");
+              
+              makeTable();
 
-       
+            })
+          } else {
+            console.log("Sorry, there is not enough in stock. Please come again later.");
+            promptCustomer(res)
+
+          }
+        })
+      }
+    }
+    if (i == res.length && correct == false) {
+      console.log("This is not for sale");
+      promptCustomer(res)
+    }
+  })
+};
